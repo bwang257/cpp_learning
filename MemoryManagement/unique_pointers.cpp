@@ -42,7 +42,7 @@ void moveUniquePtr(std::unique_ptr<Book> u_ptr){
 
 
 int main(){
-    std::cout << "=== Smart Pointers ===\n";
+    std::cout << "=== Unique Pointers ===\n";
 
     // create unique pointer
     std::unique_ptr<Book> u_pt{std::make_unique<Book>("Book1")};
@@ -74,7 +74,7 @@ int main(){
     u_pt4.reset(new Book{"Book5"});
 
     // can swap pointers with swap()
-    cout << "\nSwap pointers\nCreating pointer6" << endl;
+    cout << "\nSwap Smart pointers\nCreating pointer6" << endl;
     std::unique_ptr<Book> u_pt6{std::make_unique<Book>("Book6")};
     cout << "Calling Swap" << endl;
     u_pt6.swap(u_pt4);
@@ -89,5 +89,4 @@ int main(){
 
 
 
-
-
+// performance cost of using shared_ptr over unique_ptr?
