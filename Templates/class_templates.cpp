@@ -13,7 +13,7 @@ using std::cout;
 using std::endl;
 
 
-// template arguments are evauated at compile time
+// template arguments are evauated at compile time (so can't add variable arguments)
 // can be any expression but can't be a function with expressions determined at runtime
 
 // when the template class is instantiated, everywhere the argument occurs is replaced with its value
