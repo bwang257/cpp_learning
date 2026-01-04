@@ -44,10 +44,13 @@ constexpr int get_another_int(){
 }
 
 // use consteval for functions that should only be usable at compile time
-// Immediate Functions --> once compilter sees code invoking consteval function, compilter must perform the invocation immediately
+// Immediate Functions --> once compiler sees code invoking consteval function, compiler must perform the invocation immediately
 // compilation error if ran at runtime
 // makes purpose of these functions clearer
 consteval int Add(int x, int y){
+  if (x == 0){
+    return y;
+  }
   return x+y;
 }
 
