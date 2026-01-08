@@ -1,6 +1,6 @@
 /*
+Introduction to std::terminate and noexcept
 */
-
 
 #include <exception>
 #include <iostream>
