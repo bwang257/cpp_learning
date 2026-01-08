@@ -1,5 +1,5 @@
 /*
-
+Introduction to storing and rethrowing exceptions
 */
 
 #include <iostream>
