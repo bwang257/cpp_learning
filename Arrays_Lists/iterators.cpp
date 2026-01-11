@@ -2,9 +2,7 @@
 Overview of Iterators
 */
 
-
 // allow any type of container to be compatible with our algorithms, adds to functionality
-
 
 #include <iostream>
 #include <array>
