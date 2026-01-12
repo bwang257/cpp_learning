@@ -1,6 +1,6 @@
 /*
 Introduction to linkedlists
-- foucs on std::forward_list
+- focus on std::forward_list
 */
 
 #include <iostream>
