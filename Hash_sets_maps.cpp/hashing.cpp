@@ -1,5 +1,6 @@
 /*
 Introduction to hashing in C++
+- multimap and hashers
 */
 
 #include <iostream>
