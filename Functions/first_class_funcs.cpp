@@ -1,9 +1,11 @@
 /*
 Introduction to first class functions
+- includes intro to function ptrs
 */
 
 
 #include <iostream>
+#include <format>
 
 // c++ allows functions to be treated as variables, class members, return vals
 
@@ -44,6 +46,14 @@ bool MaxPrice15(const Book& b){
   return b.getPrice() <= 15;
 }
 
+// template functions can used in conjunction with 
+// function pointers to provide additional flexibility
+template <int max>
+bool maxPrice(const Book& b){
+  return b.getPrice() <= max;
+}
+
+
 
 int main(){
   BookStore bs;
@@ -53,8 +63,26 @@ int main(){
   if (bs.all_of(BookIsAvailable)){
     std::cout << "All books are still available\n";
   }
-  if (!bs.all_of(MaxPrice15)){
+  if (!bs.all_of(maxPrice<15>)){
     std::cout << "All books are not under $15\n";
   }
-  
+
+  std::cout << "\nFunctions can be treated like other data types\n";
+  std::cout << "Mem address of BookIsSold: " << (void*) &BookIsSold << "\n"; // need void so not implicitly converted to a bool
+
+  bool (*bis_ptr)(const Book&) = nullptr; // how to write the function ptr type, use 'using' for readability
+  bis_ptr = &BookIsSold;
+  Book b;
+  std::cout << std::format("Calling function through ptr: {}\n", (*bis_ptr)(b));
+  bis_ptr = nullptr;
+  if (bis_ptr){
+    std::cout << "bis_ptr is no longer available\n";
+  }
+
+  // ** compiler can actually complete implicit referencing and dereferencing
+  auto isav_ptr { BookIsAvailable };
+  std::cout << std::format("Calling function through implicit de/referencing ptr: {}\n", isav_ptr(b));
+
 }
+
+// g++ -std=c++20 first_class_funcs.cpp -o run
