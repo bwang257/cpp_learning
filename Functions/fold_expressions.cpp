@@ -1,8 +1,5 @@
 /*
 Fold expressions in C++
-
-g++ -std=c++20 fold_expressions.cpp -o run
-
 */
 
 #include <iostream>
