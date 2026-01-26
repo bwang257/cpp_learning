@@ -11,10 +11,70 @@ Introduction to the 8 main searching algorithms in the C++ stdlib
 
 struct CustomType{
   int value;
-  bool operator==(const CustomType& other) const {
-    return value == other.value;
-  }
+  auto operator<=>(const CustomType&) const = default;
+  bool operator==(const CustomType&) const = default;
 };
+
+
+// Binary Search O(n) or (log n)
+void binary_search_algorithm(){
+  // std::ranges::binary_search
+  // benefits from random access range and iterator but does not require it. 
+  // requires sorted range (or more technically partitioned with respect to the object we are searching for)
+  // C++ binary search can be O(log n) and O(n)
+  // returns bool whether obj was found
+
+  // note need to provide override <=> for bin search to work on custom types
+  // or pass func as third parameter
+
+  // 4th param can be projection function
+  std::vector Numbers{1, 4, 7, 8, 9, 20, 100};
+  bool result{std::ranges::binary_search(Numbers, 20)};
+  if (result){ std::cout << "20 was found in the vector!\n"; }
+
+  // lower_bound either returns an iterator to the element of an iterator to where
+  // the element would be. could be end
+  // allows actually accessing the object
+  auto it{std::ranges::lower_bound(Numbers, 20)};
+  assert(it == Numbers.begin()+5);
+  
+  auto it2{std::ranges::lower_bound(Numbers, 15)};
+  std::cout << "Lower bound says that 15 should go in position " << std::distance(Numbers.begin(), it2) << "\n";
+
+  auto it3{std::ranges::lower_bound(Numbers, 101)};
+  if (it3 == Numbers.end()){
+    std::cout << "Lower bound says that 101 should go at the end of the vector\n";
+  }
+  // can then insert, allows for insertion while perserving sorted order
+  Numbers.insert(it3, 101);
+
+  std::vector vec{CustomType{1}, CustomType{2}, CustomType{4}, CustomType{5}, CustomType{6}};
+  CustomType targ{5};
+  auto Result{std::ranges::lower_bound(vec, targ)};
+  if (Result != vec.end()){ std::cout << "Customer type with val 5 found in the vector\n"; }
+
+
+  // upper_bound method returns highest possible index 
+  // ex. upper == lower + 1 if searching for 4 in 1, 2, 3, 4, 5
+  // upper == lower if 1, 2, 3, 5
+
+  std::vector newnums{1, 2, 3, 4, 4, 4, 5};
+
+  auto Lower{std::ranges::lower_bound(newnums, 4)};
+  std::cout << "Lower Bound Index " << std::distance(newnums.begin(), Lower);
+  auto Upper{std::ranges::upper_bound(newnums, 4)};
+  std::cout << "\nUpper Bound Index " << std::distance(newnums.begin(), Upper);
+  std::cout << "\nQuantity of 4s found: " << std::distance(Lower, Upper) << "\n";
+
+  // can do the same using equal_range - get both upper and lower bounds
+  // returns pair
+  auto [Lower2, Upper2]{std::ranges::equal_range(newnums, 4)};
+  assert(Lower2 == Lower);
+  assert(Upper2 == Upper);
+  std::cout << "Upper and lower bounds can be found at once using std::ranges::equal_range\n";
+}
+
+// ** The following are all linear search algorithms **
 
 // 1
 void find_algorithm(){
@@ -158,27 +218,33 @@ void find_end_algorithm(){
 }
 
 int main(){
-  find_algorithm();
-  std::cout << "\n";
+  constexpr bool run_find_algs = false;
 
-  find_if_algorithm();
-  std::cout << "\n";
+  binary_search_algorithm();
 
-  find_if_not_algorithm();
-  std::cout << "\n";
+  if constexpr (run_find_algs){
+    find_algorithm();
+    std::cout << "\n";
 
-  find_first_of_algorithm();
-  std::cout << "\n";
-  
-  adjacent_find_algorithm();
-  std::cout << "\n";
+    find_if_algorithm();
+    std::cout << "\n";
 
-  search_n_algorithm();
-  std::cout << "\n";
+    find_if_not_algorithm();
+    std::cout << "\n";
 
-  search_algorithm();
-  std::cout << "\n";
+    find_first_of_algorithm();
+    std::cout << "\n";
+    
+    adjacent_find_algorithm();
+    std::cout << "\n";
 
-  find_end_algorithm();
-  std::cout << "\n";
+    search_n_algorithm();
+    std::cout << "\n";
+
+    search_algorithm();
+    std::cout << "\n";
+
+    find_end_algorithm();
+    std::cout << "\n";
+  }
 }
