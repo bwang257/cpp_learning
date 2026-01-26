@@ -1,5 +1,5 @@
 /*
-Explores of 8 commonly used standard library algorithms (applied to ranges)
+Commonly used range algorithms
 */
 
 #include <vector>

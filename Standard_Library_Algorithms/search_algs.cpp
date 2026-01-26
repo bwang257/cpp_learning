@@ -1,5 +1,5 @@
 /*
-Introduction to the 8 main searching algorithms in the C++ stdlib
+Ssarching algorithms in the C++ stdlib
 */
 
 #include <algorithm>

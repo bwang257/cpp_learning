@@ -1,5 +1,5 @@
 /*
-Brief Dicussion of iterator and range-based sort algorithms
+Iterator and range-based sort algorithms
 */
 
 #include <iostream>
