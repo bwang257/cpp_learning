@@ -109,11 +109,6 @@ void stl_remove_copy_if(){
   std::cout << "\n";
 }
 
-// void stl_remove(){
-
-// }
-
-
 int main(){
   stl_remove();
   stl_remove_if();
