@@ -6,11 +6,10 @@ g++ -std=c++20 stl_filesystem.cpp -o run
 #include <format>
 #include <chrono>
 #include <string>
+#include <system_error>
 namespace fs = std::filesystem;
 
-
-
-
+void copy_file();
 
 void directory_work(){
   std::string input;
@@ -68,16 +67,31 @@ void directory_work(){
       fs::copy_options::recursive | 
       fs::copy_options::directories_only); // apply | bitwise operator
 
-      // TO DO: COMBINE 5 and 6
   } else if (input == "5"){
     std::string d_delete;
-    std::cout << "Enter an empty directory to delete: ";
+    std::cout << "Enter a directory to delete: ";
     std::cin >> d_delete;
+
     try {
       fs::remove(d_delete);
       std::cout << "Directory " << d_delete << " deleted.\n";
     } catch (const fs::filesystem_error& e){
-      std::cerr << "Error: " << e.what() << "\n";
+      if (e.code() == std::errc::directory_not_empty){
+        std::string delete_yn;
+        std::cout << d_delete << " is not empty. Delete anyway? (y/n)\n";
+        std::cin >> delete_yn;
+        if (delete_yn == "y"){
+          try {
+            uintmax_t files_deleted{fs::remove_all(d_delete)};
+            std::cout << "Successfully deleted " << files_deleted << " files or directories.\n";
+          } catch (const fs::filesystem_error& e){
+            std::cerr << "Error: " << e.what() << "\n";
+          }
+        }  
+      } else {
+        std::cout << e.code() << "\n";
+        std::cerr << "Error: " << e.what() << "\n";
+      }
     }
   } else if (input == "6"){
     std::string d_delete;
@@ -103,9 +117,7 @@ void file_work(){
   std::cout << "Select an Option:\n";
   std::cout << "1. Enter a potential path to a file\n";
   std::cout << "2. Copy a regular file\n";
-
-  // std::cout << "2. Create a directory\n";
-  // std::cout << "3. Created nested directories\n";
+  std::cout << "3. Delete a file\n";
   std::cout << "\n";
   std::cin >> input;
 
@@ -133,9 +145,25 @@ void file_work(){
         std::cout << std::format("Last Modified: {}\n", last_modified);
       }
     }
+  } else if (input == "2"){
+    copy_file();
+  } else if (input == "3"){
+    std::string f_delete;
+    std::string delete_yn;
+    std::cout << "Enter a file to delete: ";
+    std::cin >> f_delete;
+    std::cout << "Are you sure you want to delete " << f_delete << " (y,n)?\n";
+    std::cin >> delete_yn;
+    if (delete_yn == "y"){
+      try {
+        fs::remove(f_delete);
+        std::cout << f_delete << " has been deleted successfully\n";
+      } catch (const fs::filesystem_error& e){
+        std::cerr << "Error: " << e.what() << '\n';
+      }
+    }
   }
 }
-
 
 void copy_file(){
   try {
