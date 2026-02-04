@@ -19,7 +19,8 @@ void directory_work(){
   std::cout << "2: Create a directory\n";
   std::cout << "3: Created nested directories\n";
   std::cout << "4: Copy directories to another directory\n";
-  std::cout << "5: Delete a directory\n";
+  std::cout << "5: Rename a directory\n";
+  std::cout << "6: Delete a directory\n";
 
   std::cout << "\n";
 
@@ -40,6 +41,9 @@ void directory_work(){
       copy_directory();
       break;
     case 5:
+      rename_directory();
+      break;
+    case 6:
       delete_directory();
       break;
     default:
@@ -56,6 +60,19 @@ void check_directory_path(){
     std::cerr << "Error: Entered path " << d_path << " is not a directory or does not exist\n";
   } else {
     std::cout << "Your path exists and is a directory!\n";
+
+    std::string input2;
+    std::cout << "\nWould you like to see storage space associated with the directory? (y/n) \n";
+    std::cin >> input2;
+    if (input2 == "y"){
+      auto [capacity, free, available]{fs::space(d_path)};
+      constexpr int bytesInGB{1024*1024*1024};
+
+      std::cout << "\n === Disk Space Info ===\n";
+      std::cout << "Capacity: " << capacity / bytesInGB << "GB\n";
+      std::cout << "Free: " << free / bytesInGB << "GB\n";
+      std::cout << "Available: " << available / bytesInGB << "GB\n";
+    }
   }   
 }
 
@@ -99,6 +116,7 @@ void copy_directory(){
   }
 } 
 
+
 void delete_directory(){
   std::string d_delete;
   std::cout << "Enter a directory to delete: ";
@@ -124,5 +142,20 @@ void delete_directory(){
       std::cout << e.code() << "\n";
       std::cerr << "Error: " << e.what() << "\n";
     }
+  }
+}
+
+void rename_directory(){
+  std::string curr_dir_path;
+  std::string new_dir_path;
+  std::cout << "Enter directory to rename: ";
+  std::cin >> curr_dir_path;
+  std::cout << "Enter new path/dir name: ";
+  std::cin >> new_dir_path;
+  try {
+    fs::rename(curr_dir_path, new_dir_path);
+    std::cout << "Directory " << curr_dir_path << " successfully renamed to " << new_dir_path << "\n";
+  } catch (const fs::filesystem_error& e){
+    std::cerr << "Error: " << e.what() << "\n";
   }
 }

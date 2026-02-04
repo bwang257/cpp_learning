@@ -26,10 +26,13 @@ int main(int argc, char* argv[]){
     switch (choice){
       case 1:
         std::cout << "Your current path is: " << fs::current_path() << "\n";
+        break;
       case 2:
         directory_work();
+        break;
       case 3:
         file_work();
+        break;
       case 4:
         continueLoop = false;
         break;

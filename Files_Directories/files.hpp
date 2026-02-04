@@ -18,3 +18,4 @@ void file_work();
 void check_file_path();
 void copy_file();
 void delete_file();
+void rename_file();

@@ -14,9 +14,11 @@ Header file for filesystem directory functions used in filesystem.cpp
 
 namespace fs = std::filesystem;
 
+void directory_work();
+
 void check_directory_path();
 void create_simple_directory();
 void create_nested_directories();
 void copy_directory();
+void rename_directory();
 void delete_directory();
-void directory_work();

@@ -14,7 +14,8 @@ void file_work(){
   std::cout << "Select an Option:\n";
   std::cout << "1. Enter a potential path to a file\n";
   std::cout << "2. Copy a regular file\n";
-  std::cout << "3. Delete a file\n";
+  std::cout << "3. Rename a file\n";
+  std::cout << "4. Delete a file\n";
   std::cout << "\n";
   std::cin >> input;
 
@@ -28,6 +29,9 @@ void file_work(){
       copy_file();
       break;
     case 3:
+      rename_file();
+      break;
+    case 4:
       delete_file();
       break;
     default:
@@ -46,7 +50,7 @@ void check_file_path(){
   } else {
     std::cout << "Your path exists and is a regular file!\n";
     std::string input2;
-    std::cout << "Would you like too print file statistics? (y,n)\n";
+    std::cout << "Would you like to print file statistics? (y,n)\n";
     std::cin >> input2;
     if (input2 == "y"){
       std::cout << "\n=== File Statistics ===\n";
@@ -56,6 +60,18 @@ void check_file_path(){
       // C++20 has it return std::chrono::time_point<std::chrono::file_clock>, with alias std::filesystem::file_time_type
       fs::file_time_type last_modified{my_file.last_write_time()};
       std::cout << std::format("Last Modified: {}\n", last_modified);
+    }
+
+    std::cout << "\nWould you like to see storage space associated with the path? (y/n) \n";
+    std::cin >> input2;
+    if (input2 == "y"){
+      auto [capacity, free, available]{fs::space(f_path)};
+      constexpr int bytesInGB{1024*1024*1024};
+
+      std::cout << "\n === Disk Space Info ===\n";
+      std::cout << "Capacity: " << capacity / bytesInGB << "GB\n";
+      std::cout << "Free: " << free / bytesInGB << "GB\n";
+      std::cout << "Available: " << available / bytesInGB << "GB\n";
     }
   }
 }
@@ -94,5 +110,20 @@ void delete_file(){
     } catch (const fs::filesystem_error& e){
       std::cerr << "Error: " << e.what() << '\n';
     }
+  }
+}
+
+void rename_file(){
+  std::string curr_file_path;
+  std::string new_file_path;
+  std::cout << "Enter file to rename: ";
+  std::cin >> curr_file_path;
+  std::cout << "Enter new path/filename: ";
+  std::cin >> new_file_path;
+  try {
+    fs::rename(curr_file_path, new_file_path);
+    std::cout << "File " << curr_file_path << " successfully renamed to " << new_file_path << "\n";
+  } catch (const fs::filesystem_error& e){
+    std::cerr << "Error: " << e.what() << "\n";
   }
 }
