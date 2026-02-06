@@ -14,8 +14,9 @@ void file_work(){
   std::cout << "Select an Option:\n";
   std::cout << "1. Enter a potential path to a file\n";
   std::cout << "2. Copy a regular file\n";
-  std::cout << "3. Rename a file\n";
-  std::cout << "4. Delete a file\n";
+  std::cout << "3. Create a new file\n";
+  std::cout << "4. Rename a file\n";
+  std::cout << "5. Delete a file\n";
   std::cout << "\n";
   std::cin >> input;
 
@@ -29,9 +30,13 @@ void file_work(){
       copy_file();
       break;
     case 3:
-      rename_file();
+      create_file();
       break;
     case 4:
+      rename_file();
+      
+      break;
+    case 5: 
       delete_file();
       break;
     default:
@@ -39,6 +44,29 @@ void file_work(){
   }
 }
 
+void create_file(){
+  std::fstream file;
+  std::string f_path;
+  std::cout << "Enter file path to create: ";
+  std::cin >> f_path;
+  std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // consume leftover newline
+  file.open(f_path, std::ios::out | std::ios::noreplace);
+
+  if (!file.is_open()){
+    std::cerr << "Error opening file. Make sure the file does not exist already.\n";
+    return;
+  }
+
+  std::string input;
+  std::cout << "Enter line to write or Ctrl + D to exit:\n\n";
+  while (std::getline(std::cin, input)){
+    file << input << "\n";
+  }
+  std::cin.clear(); // clear EOF/fail state
+  std::clearerr(stdin); // reset C-level EOF indicator
+  file.close();
+  std::cout << "\n";
+}
 
 void check_file_path(){
   std::string f_path;
@@ -94,7 +122,6 @@ void copy_file(){
     exit(1);
   }
 }
-
 
 void delete_file(){
   std::string f_delete;

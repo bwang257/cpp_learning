@@ -2,7 +2,7 @@
 Exploration of std::file_system through a command line interface
 
 Compile with:
-g++ -std=c++20 filesystem.cpp directories.cpp files.cpp utility.cpp -o run
+g++ -std=c++23 filesystem.cpp directories.cpp files.cpp utility.cpp -o run
 */
 
 #include "directories.hpp"
