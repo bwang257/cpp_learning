@@ -19,6 +19,7 @@ namespace fs = std::filesystem;
 
 void file_work();
 void create_file();
+void read_file();
 void check_file_path();
 void copy_file();
 void delete_file();

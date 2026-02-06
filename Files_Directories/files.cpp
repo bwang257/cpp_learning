@@ -1,22 +1,20 @@
 /*
 filesystem file functions used in filesystem.cpp to create interactive program with user
+
+Note: changing input and output positions using seekp/seekg, tellp/tellg not integrated here. 
 */
 
 #include "files.hpp"
 
-// forward declarations:
-void check_file_path();
-void copy_file();
-void delete_file();
-
 void file_work(){
   std::string input;
-  std::cout << "Select an Option:\n";
+  std::cout << "\nSelect an Option:\n";
   std::cout << "1. Enter a potential path to a file\n";
   std::cout << "2. Copy a regular file\n";
   std::cout << "3. Create a new file\n";
-  std::cout << "4. Rename a file\n";
-  std::cout << "5. Delete a file\n";
+  std::cout << "4. Read a file\n";
+  std::cout << "5. Rename a file\n";
+  std::cout << "6. Delete a file\n";
   std::cout << "\n";
   std::cin >> input;
 
@@ -32,11 +30,13 @@ void file_work(){
     case 3:
       create_file();
       break;
-    case 4:
-      rename_file();
-      
+    case 4: 
+      read_file();
       break;
-    case 5: 
+    case 5:
+      rename_file(); 
+      break;
+    case 6: 
       delete_file();
       break;
     default:
@@ -67,6 +67,35 @@ void create_file(){
   file.close();
   std::cout << "\n";
 }
+
+void read_file(){
+  std::fstream file;
+  std::string f_path;
+  std::cout << "Enter file path to read: ";
+  std::cin >> f_path;
+  fs::path test_path{f_path};
+  fs::directory_entry test_entry{test_path};
+  if (!test_entry.exists() ||  !test_entry.is_regular_file()){
+    std::cerr << "Entered path does not exist or is not a regular file\n";
+    return;
+  }
+
+  file.open(test_entry);
+
+  if (!file.is_open()){
+    std::cerr << "Error opening file. Make sure the file exists.\n";
+    return;
+  }
+  std::cout << "\n==== " << test_path.filename().string() << " ====\n\n";
+
+  std::string output;
+  while (std::getline(file, output)){
+    std::cout << output << "\n";
+  }
+  file.close();
+  std::cout << "\n";
+}
+
 
 void check_file_path(){
   std::string f_path;

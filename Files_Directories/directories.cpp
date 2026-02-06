@@ -4,17 +4,9 @@ filesystem directory functions used in filesystem.cpp to create interactive prog
 
 #include "directories.hpp"
 
-// forward declarations:
-void check_directory_path();
-void create_simple_directory();
-void create_nested_directories();
-void copy_directory();
-void delete_directory();
-
-
 void directory_work(){
   std::string input;
-  std::cout << "Select an Option:\n";
+  std::cout << "\n Select an Option:\n";
   std::cout << "1: Enter a potential path to a directory\n";
   std::cout << "2: Create a directory\n";
   std::cout << "3: Created nested directories\n";
