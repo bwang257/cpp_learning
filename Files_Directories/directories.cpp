@@ -51,6 +51,15 @@ void directory_work(){
   }
 }
 
+void log_directory_content(const fs::directory_entry& entry){
+  std::cout << entry.path().string();
+  if (entry.is_directory()){
+    std::cout << " (directory)\n";
+  } else if (entry.is_regular_file()){
+    std::cout << " (File: " << entry.file_size() << " bytes)\n";
+  }
+}
+
 void check_directory_path(){
   std::string d_path;
   std::cout << "Enter a path: ";
@@ -73,6 +82,18 @@ void check_directory_path(){
       std::cout << "Free: " << free / bytesInGB << "GB\n";
       std::cout << "Available: " << available / bytesInGB << "GB\n";
     }
+
+    std::cout << "\nWould you like to see the contents of this directory? (y/n)\n";
+    std::cin >> input2;
+    if (input2 == "y"){
+      std::cout << "Would you like to show files in subdirectories as well? (y/n)\n";
+      std::cin >> input2;
+      if (input2 == "y"){
+        std::ranges::for_each(fs::recursive_directory_iterator(d_path), log_directory_content);
+      } else {
+         std::ranges::for_each(fs::directory_iterator(d_path), log_directory_content);
+      }
+    } 
   }   
 }
 

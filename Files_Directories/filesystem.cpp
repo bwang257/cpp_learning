@@ -1,5 +1,5 @@
 /*
-Exploration of std::file_system through an interactive user interface
+Exploration of std::file_system through a command line interface
 
 Compile with:
 g++ -std=c++20 filesystem.cpp directories.cpp files.cpp utility.cpp -o run
