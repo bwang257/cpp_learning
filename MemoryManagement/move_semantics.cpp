@@ -1,4 +1,6 @@
-
+/*
+Move Semantics in C++
+*/
 /**
 Often the objects we create must store otehr objects in them.
 This can make deep copying expensive. 
@@ -26,7 +28,7 @@ struct SubResource {
     cout << "Creating subresource" << endl;
   };
 
-  // copy constructor
+  // copy constructor, l-value
   SubResource(const SubResource& source){
     cout << "Copying subresource (expensive!)" << endl;
   }
@@ -45,8 +47,7 @@ struct Resource {
     cout << "Creating resource" << endl;
   }
   
-  // copy constructor
-  // when we still want to use the original object
+  // copy constructor -  when we still want to use the original object, l value
   Resource(const Resource& source) : sub{std::make_unique<SubResource>(*source.sub) } {
     cout << "Copying Resource" << endl;
   }
@@ -58,12 +59,14 @@ struct Resource {
 
   shallow copy, transfer ownership of the subresources to the shallow copy.
   modifies original object
+
+  // takes in rvalue reference
   */
   Resource(Resource&& source) : sub{std::move(source.sub)} {
     cout << "Moving Resource\n";
   }
 
-  // move assignment operator
+  // move assignment operator, rvalue reference
   Resource& operator=(Resource&& source){
     if (&source == this){
       cout << "Same object, skipping move assignmnet\n";
