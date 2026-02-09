@@ -5,4 +5,5 @@ Contains collections of either small experiments used to develop my C++ intuitio
 small projects exploring concepts/libraries. 
 
 Currently using Studyplan.dev's [Professional C++ Course](https://www.studyplan.dev/pro-cpp)
+
 In Parallel: Effective Modern C++ by Scott Meyers
