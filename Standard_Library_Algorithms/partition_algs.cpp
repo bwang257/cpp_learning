@@ -1,5 +1,8 @@
 /*
 Discussion of 5 common STL Partition Algorithms 
+- every std alg here can accept a projection function as another arg
+- can also use a iterator-sentinel pair instead of a range
+- if we don't use ranges namespace, we must use iterator-iterator pair with no projection functions
 
 Compile with:
 g++ -std=c++20 partition_algs.cpp -o run
@@ -74,7 +77,6 @@ void stl_stable_partition(){
 
   std::cout << "\n";
 }
-
 
 
 void stl_partition_copy(){
@@ -152,7 +154,30 @@ void stl_partition_point(){
 // partition algorithm involves move assignment to avoid excessive copying
 // may need to define custom move assignment and swap functions
 
+enum class FoodState { Fresh, Alright, Rotten };
 
+class Food {
+  public:
+    Food (std::string name, FoodState state) : name{name}, state{state}{}
+
+    Food(const Food& Other) = default; // default copy constructor
+
+    // move assignment
+    Food& operator=(Food&& Other){
+      std::swap(name, Other.name);
+      std::swap(state, Other.state);
+      return *this;
+    }
+
+    std::string name;
+    FoodState state;
+};
+
+void swap(Food& A, Food& B){
+  std::cout << "Swapping " << A.name << " and " << B.name << "\n";
+  std::swap(A.name, B.name);
+  std::swap(A.state, B.state);
+}
 
 int main(){
   stl_partition();
@@ -160,4 +185,30 @@ int main(){
   stl_partition_copy();
   stl_is_partitioned();
   stl_partition_point();
+
+  using enum FoodState;;
+  std::vector <Food> foods{
+    {"Banana", Fresh},
+    {"Orange", Alright},
+    {"Pineapple", Rotten},
+    {"Apple", Fresh},
+    {"Cherry", Alright},
+    {"Watermelon", Rotten}
+  };
+
+  auto isGood{[](Food& food){return food.state != Rotten; }};
+  auto bad_to_eat{std::ranges::partition(foods, isGood)};
+
+  std::cout << "Good to eat: ";
+  auto good_to_eat{std::ranges::subrange(foods.begin(), bad_to_eat.begin())};
+  for (Food& f :good_to_eat){
+    std::cout << f.name << ", ";
+  }
+  std::cout << "\n";
+
+  std::cout << "Bad to eat: ";
+  for (Food& f : bad_to_eat) {
+    std::cout << f.name << ", ";
+  }
+  std::cout << "\n";
 }
