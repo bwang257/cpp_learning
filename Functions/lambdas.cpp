@@ -1,18 +1,40 @@
 /*
-Introduction to lambda function in c++
+Lambda functions in c++
+- captures
+- closures - (functions that capture surrounding environment, take var by reference or value)
+
+Compile with:
+g++ -std=c++20 lambdas.cpp -o run
 */
 
 // lambdas can be defined anywhere and can be anonymous with no name
+// lambdas are just structs with an () operator
+
 
 // generally just use auto to define lambda, tricky to explicitly define
 
 #include <iostream>
 #include <utility>
+#include <memory>
+#include <cassert>
+
+struct myObj {
+  void doWork(){
+    std::cout << "MyObj is doing work!\n";
+  }
+};
+
 
 void CallIfEven(int Num, auto Callback) {
   if (Num % 2 == 0) {
     Callback();
   }
+}
+
+// dangling reference hazard
+auto make_bad_closure(){
+  int local{5};
+  return [&local](){return local; }; 
 }
 
 int main() {
@@ -73,7 +95,14 @@ int main() {
   testLambda();
   std::cout << "Yet the value in main remains at " << Number << "\n";
 
-  // instead can capture by refernece
+  // this can be applied to move semantics
+  auto ptr = std::make_unique<myObj>();
+  auto myObj_lam{[p = std::move(ptr)]{ p->doWork(); }}; 
+  assert(!ptr); // null now
+  myObj_lam();
+
+
+  // instead can capture by reference, can be dangerous if the closure outlives the referenced var
   auto testLambda2{[&Number]() {  
     std::cout << "Number in Lambda: " << ++Number << "\n";
   }};
@@ -86,10 +115,10 @@ int main() {
   testLambda3();
 
   // default captures
-  [=] {std::cout << "Number now: " << Number << '\n'; }(); // capture all var we are using
+  [=] {std::cout << "Number now: " << Number << '\n'; }(); // capture all var we are using by value
   [&] {std::cout << "Modifying number: " << ++Number << '\n'; }(); // capture everything by reference
 
-  // combine default captures
+  // mixed captures
   // Capture x by reference
   // Capture y by const reference
   // Capture everything else by value
