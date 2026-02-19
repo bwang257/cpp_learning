@@ -26,8 +26,9 @@ int main(){
   std::unordered_set<int> mySet { 1, 2, 3, 3, 4, 5}; // duplicates are ignored
 
   // create a set from a vector
+  // allows very easily to find unique vals from a range, can then return vector(mySet2.begin(), mySet2.end())
   std::vector<int> myVec{3, 2, 2, 2, 3, 1, 5, 6, 8};
-  std::unordered_set<int> mySet2{myVec.begin(), myVec.end()};
+  std::unordered_set<int> mySet2{myVec.begin(), myVec.end()}; 
 
   std::cout << "Set created from vector {3, 2, 2, 2, 3, 1, 5, 6, 8}: ";
   // the container is not ordered
@@ -40,7 +41,7 @@ int main(){
   std::unordered_set<std::string> newSet;
   std::string Greeting{"Hello"};
   std::string Target{"Everyone"};
-  // insert returns a pair (iterato to where we tried to insert, success bool)
+  // insert returns a pair (iterator to where we tried to insert, success bool)
   auto [it, wasInserted]{newSet.insert(Greeting)};
   if (wasInserted){
     std::cout << *it << " was inserted into the set\n";

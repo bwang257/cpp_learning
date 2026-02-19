@@ -1,6 +1,14 @@
 /*
-Introduction to template specialization
+Template specialization
+
+Compile with:
+g++ -std=c++20 template_specialization.cpp -o run
 */
+
+// template specializations must be written at namespace scope, not class cope
+// thus the C++98 convention of "deleting" functions by making them private
+// cannot apply to template specialization
+
 
 #include <iostream>
 #include <string>
@@ -27,6 +35,11 @@ template <>
 void Render<Person>(Person subject){
   std::cout << "Rendering " << subject.name << std::endl;
 }
+
+// delete keyword allows us to prevent certain template instantiations
+template<>
+void Render<int>(int subject) = delete;
+
 
 // Can also simply use if constexpr and std::same_as
 // this is a c++20 feature

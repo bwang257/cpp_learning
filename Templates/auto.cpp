@@ -1,13 +1,16 @@
 /*
 More about auto keyword
 - benefits of auto
+- when not to use auto
 
 g++ auto.cpp -o run
 */
 
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 #include <utility>
+#include <cassert>
 
 #define NumVals 5
 
@@ -49,8 +52,29 @@ void type_mismatch(){
   std::cout << "myObj was copied " << copy_times << " times\n";
 }
 
+// we have some helper that returns a vector of bools
+std::vector<bool> check_val(const myObj& obj){
+  assert(obj.x % 2 == 0);
+  return {true, false, true, true};
+}
+
+// use of auto can lead to undefined behavior with proxy classes
+void proxy_classes(){
+  myObj x{2};
+  
+  // [] for a bool vector returns std::vector<bool>::reference
+  // rather than bool& because C++ forbids references to bits
+  // the returned vector is destroyed at the end of the vehavior
+  auto result = check_val(x)[1];
+  if (std::is_same<decltype(result), std::vector<bool>::reference>::value){};
+
+  // should use the explicitly typed initializer idiom:
+  auto result2 = static_cast<bool>(check_val(x)[1]);
+  if (!result2) std::cout << "Using explicitly typed initializer idiom\n";
+}
 
 int main(){
   type_mismatch();
+  proxy_classes();
 }
 
