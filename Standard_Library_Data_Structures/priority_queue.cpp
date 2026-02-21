@@ -1,22 +1,68 @@
 /*
-Intro to std::priority_queue
+std::priority_queue
+
+Compile with:
+g++ -std=c++23 priority_queue.cpp -o run
 */
 
-
 #include <iostream>
+#include <utility>
 #include <queue>
 #include <vector>
+#include <cassert>
 
-// is a container adaptor
-// default underlying container is vector
+// is a container adaptor, with default container vector and max heap implementation
 // underlying data structure has to support random access iterators 
-// and some key methods (push_back, pop_back, front)
-
 
 // no dynamic priority or reprioritization - look for custom implmentation or third part
 // if change element inserted, will not be repositioned accordingly
 
+// technically 3 parameters: type of element, conatiner, and comparator type. If use default
+// comparator, only need to specify type of element
+
+void max_heap(){
+  std::priority_queue<int> max_heap; // std::less implemented by default
+  max_heap.push(4); 
+  max_heap.push(3); 
+  max_heap.push(2); 
+  std::cout << "Current max: " << max_heap.top() << "\n";
+
+  // lambda for max heap implementation on second element
+  auto comp_second_val{[](std::pair<int, int> p1, std::pair<int, int> p2){ 
+    if (p1.second == p2.second) return p1.first < p2.first;
+    return p1.second < p2.second; 
+  }};
+
+  // pair implementation
+  std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, decltype(comp_second_val)> pair_mh(comp_second_val);
+  pair_mh.push({1,2});
+  pair_mh.push({2,2});
+  pair_mh.push({8,1});
+  assert(pair_mh.top().first == 2 && pair_mh.top().second == 2);
+  std::cout << "\n";
+}
+
+void min_heap(){
+  // pair implementation of max heap
+  std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<std::pair<int,int>>> pair_minheap;
+  std::vector<std::pair<int, int>> my_pairs{{1, 5}, {3, 4}, {7, 2}, {1, 4}, {4, 2}, {6, 9}};
+
+  for (const auto& pair : my_pairs) pair_minheap.push(std::move(pair));
+  std::cout << "Pairs in pair minheap: ";
+  while (!pair_minheap.empty()){
+    const auto& curr_pair = pair_minheap.top(); // return const std::pair<int, int> reference, auto uses template type deduction
+    std::cout << "(" << curr_pair.first << ", " << curr_pair.second << "), ";
+    pair_minheap.pop();
+  }
+  std::cout << "\n";
+  std::cout << "\n";
+}
+
+
 int main(){
+  max_heap();
+  min_heap();
+
   std::vector<int> Source{1,2,3};
   std::priority_queue<int> Numbers{{}, std::move(Source)}; // {} for no custom compare func, move to avoid copying Source
   
@@ -46,4 +92,5 @@ int main(){
     pq.pop();
   }
   std::cout << "\n";
+
 }
