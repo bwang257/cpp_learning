@@ -19,6 +19,7 @@ ex. ASCII vals > 127 cast to negative numbers that aren't handled by lib functio
 
 void check_properties(){
   std::string input{"5nsd?dSh5jk\t44s234.nSg  shAGs73!4fd\t\tgDDS?FDE"};
+  int num_alnum{0};
   int num_letters{0};
   int num_spaces{0};
   int num_numbers{0};
@@ -28,6 +29,7 @@ void check_properties(){
   
   for (const char& c : input){
     char uc = static_cast<unsigned char>(c);
+    if (std::isalnum(uc)) num_alnum+=1;
     if (std::isalpha(uc)) num_letters+=1;
     if (std::isblank(uc)) num_spaces+=1; // includes ' ' and '\t'
     if (std::isupper(uc)) num_upper+=1;
@@ -37,6 +39,7 @@ void check_properties(){
   }
 
   std::cout << "String: " << input << "\n";
+  std::cout << "The strin has " << num_alnum << "letters and numbers\n";
   std::cout << "The string has " << num_letters << " letters and " << num_numbers << " numbers\n";
   std::cout << "The string has " << num_upper << " uppercase letters and " << num_lower << " lowercase letters\n";
   std::cout << "There were also " << num_spaces << " whitespaces and " << num_punct << " punctuation marks\n";
