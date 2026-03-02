@@ -106,6 +106,13 @@ void check_file_path(){
     std::cerr << "Error: Entered path " << f_path << " is not a file or does not exist\n";
   } else {
     std::cout << "Your path exists and is a regular file!\n";
+    if (is_block_file(my_file)){
+      std::cout << "Entered path corresponds to a block device\n";
+    }
+    if (is_character_file(my_file)){
+      std::cout << "Entered path corresponds to a character device\n";
+    }
+
     std::string input2;
     std::cout << "Would you like to print file statistics? (y,n)\n";
     std::cin >> input2;
