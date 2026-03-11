@@ -89,6 +89,34 @@ void transition_matrix_ex(){
   RowVectorXd residual = dist * P - dist;
   std::cout << "sum = " << std::setprecision(4) << dist.sum() << "\n";
   std::cout << "||πP - π|| = " << residual.norm() << "\n\n";
+
+  // application of eigensolver
+  std::cout << "\n===Finding Left Eigenvector (EigenSolver)===\n";
+  // eigensolver finds right eigenvectors, we want left so we transpose
+  EigenSolver<MatrixXd> solver(P.transpose()); 
+  std::cout << "Left eigenvalues of P:\n" << solver.eigenvalues() << "\n\n";
+
+  // we need to find the index that corresponds to the perron-frobenius eigenvalue of 1
+  // only one --> multiplicities of 1
+  int idx{-1};
+  for (int i{}; i < solver.eigenvalues().size(); ++i){
+    if (std::abs(solver.eigenvalues()(i).real() - 1.0) < 1e-9 &&
+        std::abs(solver.eigenvalues()(i).imag()) < 1e-9){
+          idx = i;
+          break;
+        }
+  }
+  if (idx == -1) std::cout << "No eigenvalue of 1 found!\n";
+  else {
+    VectorXd stationary = solver.eigenvectors().col(idx).real();
+    stationary = stationary.cwiseAbs(); // ensure positive, sign ambiguity
+    stationary /= stationary.sum(); // normalize
+
+    std::cout << "Stationary distribution (eigenvector method):\n";
+    printDist(stationary);
+    VectorXd resid = P.transpose() * stationary - stationary;
+    std::cout << "Verification:\n||πP - π|| = " << resid.norm() << "\n\n";
+  }
 }
 
 
