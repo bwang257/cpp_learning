@@ -1,15 +1,11 @@
 
 /*
-Implementation of the Johnson-Trotter Algorithm in C++
-with a slight modification to find permutations where
-pi_i -i = pi_j - j implied i = j.
-
-Note: this is probably not the most efficient approach -
-Once the condition has been violated, further permutations
-along that "sub-branch" are not necessary
+Exploration Permutations in C++
+- Johnson Trotter Algorithm to list all permutations
+  - Rank/Unrank Algorithms for JT permutations
 
 Compile with:
-g++ -std=c++20 perm.cpp -o run
+g++ -std=c++20 permutations.cpp -o run
 
 Run with:
 ./run
@@ -19,19 +15,34 @@ Run with:
 #include <vector>
 #include <set>
 #include <unordered_set>
+#include <unordered_map>
 #include <ranges>
 #include <string>
 #include <iomanip>
+#include <ranges>
+#include <algorithm>
+#include <sstream>
+
+size_t factorial(unsigned int n){
+  if (n == 2) return n;
+  if (n==1 || n== 0) return 1;
+  return n * factorial(n-1);
+}
 
 bool print{false}; // change to print out permutations that satisfy condition
 unsigned int num_valid{};
 
+/*
+Note: this is probably not the most efficient approach -
+Once the condition has been violated, further permutations
+along that "sub-branch" are not necessary
+*/
 void check_print(const std::vector<int>& pi, int n){
   std::unordered_set<int> distinct;
   for (int i{1}; i <= n; ++i){
     int val = pi[i] - i;
     int mod = ((val % n) + n) % n; // computing mathematical mod
-    
+
     if (distinct.count(mod)) break;
     distinct.insert(mod);
   }
@@ -45,6 +56,11 @@ void check_print(const std::vector<int>& pi, int n){
   }
 }
 
+/*
+Implementation of the Johnson-Trotter Algorithm in C++
+with a slight modification to find permutations where
+pi_i -i = pi_j - j implies i = j.
+*/
 void JohnsonTrotter(int n){
   std::vector<int> pi(n+2);
   std::vector<int> pi_inv(n+2);
@@ -81,7 +97,60 @@ void JohnsonTrotter(int n){
   }
 }
 
-int main(){
+size_t JT_Rank(std::vector<int>& pi){
+
+  bool sorted{true};
+  int sorted_val{1};
+  int max = pi.size();
+  int max_idx{-1};
+
+  // preprocess
+  for (int i{}; i < max; ++i){
+    int val = pi[i];
+    if (sorted){
+      if (val == sorted_val) ++sorted_val;
+      else sorted = false;
+    }
+    if (val == max) max_idx = i; 
+    if (!sorted && max_idx != -1) break;
+  }
+  ++max_idx; // the JT Rank formula counts indices from 1
+
+  if (sorted) return 0;
+  std::erase(pi, pi.size()); // remove max
+
+  size_t prev_rank = JT_Rank(pi);
+  return (prev_rank % 2 == 0) ? (max * prev_rank + (max - max_idx)) : (max * prev_rank + (max_idx-1));
+}
+
+std::vector<int> JT_Unrank(size_t M, int n){
+  std::vector<int> pi(n, 0);
+  int k; 
+  int dir;
+  for (int j{n}; j >= 1; --j){
+    int R = static_cast<int>(M % j);
+    M /= j;
+
+    if (M % 2 == 1){
+      k = -1;
+      dir = 1; 
+    } else {
+      k = n;
+      dir = -1;
+    }
+    int C{0};
+    do {
+      k += dir;
+      if (pi[k] == 0) C+=1;
+    } while (C < R+1);
+    pi[k] = j;
+
+  }
+  return pi;
+}
+
+void interactive_JT(){
+  std::cout << "=== Johnson-Trotter ===\n";
   std::cout << "\nSelect an option (a/b):\n";
   std::cout << "a) Find valid permutations for a specific n\n";
   std::cout << "b) Find valid permutations from n=1 to user-entered value\n\n";
@@ -108,4 +177,68 @@ int main(){
     std::cout << "Entered option invalid.\n";
   }
   std::cout << "\n";
+}
+
+void interactive_JT_Rank(){
+  std::cout << "=== Johnson-Trotter Rank ===\n";
+  int n;
+  size_t rank;
+  std::cout << "Enter n: ";
+  std::cin >> n;
+  std::cin.ignore(); // std::cin keeps the \n in input buffer
+
+  std::string input;
+  std::cout << "Enter permutation with commas between entries (ex: \"1,2,3,4\"):\n";
+  std::getline(std::cin, input);
+  std::stringstream ss{input};
+
+  std::string val; 
+  std::vector<int> pi;
+  std::unordered_set<int> used_entries;
+
+  while (std::getline(ss, val, ',')){
+    int entry = std::stoi(val);
+    if (used_entries.count(entry)){
+      std::cerr << "Not a valid permutation\n";
+      exit(1);
+    }
+    used_entries.insert(entry);
+    pi.push_back(entry);
+  }
+
+  if (pi.size() != n){
+    std::cerr << "Not a valid permutation\n";
+  }
+  
+  std::cout << "Rank: " << JT_Rank(pi) << "\n\n";
+}
+
+void interactive_JT_Unrank(){
+  std::cout << "=== Johnson-Trotter Unrank ===\n";
+  int n;
+  std::cout << "Enter n: ";
+  std::cin >> n;
+  std::cin.ignore();
+  
+  size_t M;
+  std::cout << "Enter rank: ";
+  std::cin >> M;
+
+  // bounds checking for rank
+  size_t n_fact{factorial(n)};
+  if (M < 0 ||  M > n_fact - 1){
+    std::cout << "Rank not valid\n";
+    exit(1);
+  } 
+  
+  std::vector<int> pi = JT_Unrank(M, n);
+  std::cout << "pi: ";
+  for (const int& x: pi) std::cout << x << ", ";
+  std::cout << "\n\n";
+}
+
+int main(){
+  interactive_JT();
+  interactive_JT_Rank();
+  interactive_JT_Unrank();
 }
