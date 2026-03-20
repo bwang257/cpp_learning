@@ -1,5 +1,6 @@
 /*
-Exploration of the Eigen Library (template library to linear algebra)
+Exploration of the linear algebra /tran
+- using Eigen Library (template library to linear algebra)
 
 Compile with (macOS with homebrew):
 g++ -std=c++17 -O2 -I/opt/homebrew/include/eigen3 eigen_lib.cpp -o run
