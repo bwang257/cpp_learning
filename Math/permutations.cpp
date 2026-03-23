@@ -159,7 +159,7 @@ void print_perm(const std::vector<int> perm){
 
 size_t total_kperms{};
 
-void lexlist_perms(std::vector<int> curr_set, std::vector<int> curr_perm, int k){
+void lexlist_perms(std::vector<int> curr_set, std::vector<int>& curr_perm, int k){
   if (curr_perm.size() == k){
     print_perm(curr_perm);
     total_kperms++;
@@ -280,11 +280,11 @@ void interactive_lexlist_perms(){
   }
 
   std::vector<int> curr_set(n);
+  std::vector<int> curr_perm;
   std::iota(curr_set.begin(), curr_set.end(), 1);
-  lexlist_perms(curr_set, {}, k);
+  lexlist_perms(curr_set, curr_perm, k);
   assert(total_kperms == factorial(n) / factorial(n-k)); // ensure that there was actually n!/(n-k)! total k-element permutations printed
 }
-
 
 int main(){
   interactive_JT();
