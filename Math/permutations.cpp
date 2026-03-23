@@ -3,6 +3,7 @@
 Exploration Permutations in C++
 - Johnson Trotter Algorithm to list all permutations
   - Rank/Unrank Algorithms for JT permutations
+- listing k element permutations in lex order
 
 Compile with:
 g++ -std=c++20 permutations.cpp -o run
@@ -22,6 +23,8 @@ Run with:
 #include <ranges>
 #include <algorithm>
 #include <sstream>
+#include <numeric>
+#include <cassert>
 
 size_t factorial(unsigned int n){
   if (n == 2) return n;
@@ -149,6 +152,30 @@ std::vector<int> JT_Unrank(size_t M, int n){
   return pi;
 }
 
+void print_perm(const std::vector<int> perm){
+  for (const auto& val : perm) std::cout << val << ", ";
+  std::cout << '\n';
+}
+
+size_t total_kperms{};
+
+void lexlist_perms(std::vector<int> curr_set, std::vector<int> curr_perm, int k){
+  if (curr_perm.size() == k){
+    print_perm(curr_perm);
+    total_kperms++;
+    return;
+  }
+  for (int x{}; x < curr_set.size(); ++x){
+    curr_perm.push_back(curr_set[x]);
+    std::vector<int> next_set;
+    for (int i{}; i < curr_set.size(); ++i){
+      if (x != i) next_set.push_back(curr_set[i]);
+    }
+    lexlist_perms(next_set, curr_perm, k);
+    curr_perm.pop_back();
+  }
+}
+
 void interactive_JT(){
   std::cout << "=== Johnson-Trotter ===\n";
   std::cout << "\nSelect an option (a/b):\n";
@@ -237,8 +264,31 @@ void interactive_JT_Unrank(){
   std::cout << "\n\n";
 }
 
+void interactive_lexlist_perms(){
+  int n;
+  std::cout << "Enter n: ";
+  std::cin >> n;
+  std::cin.ignore();
+
+  int k;
+  std::cout << "Enter k: ";
+  std::cin >> k;
+  
+  if (k > n){
+    std::cerr << "k must be less than or equal to n\n";
+    exit(1);
+  }
+
+  std::vector<int> curr_set(n);
+  std::iota(curr_set.begin(), curr_set.end(), 1);
+  lexlist_perms(curr_set, {}, k);
+  assert(total_kperms == factorial(n) / factorial(n-k)); // ensure that there was actually n!/(n-k)! total k-element permutations printed
+}
+
+
 int main(){
   interactive_JT();
   interactive_JT_Rank();
   interactive_JT_Unrank();
+  interactive_lexlist_perms();
 }
