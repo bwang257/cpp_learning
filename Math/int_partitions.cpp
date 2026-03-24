@@ -1,5 +1,5 @@
 /*
-Exploration if Integer Partitions using C++
+Exploration of Integer Partitions using C++
 
 Compile with:
 g++ -std=c++23 int_partitions.cpp -o run
@@ -14,6 +14,7 @@ g++ -std=c++23 int_partitions.cpp -o run
 
 const std::vector<std::string> super_scripts = {"\u2070", "\u00B9", "\u00B2", "\u00B3", "\u2074", "\u2075", "\u2076", "\u2077", "\u2078", "\u2079"};
 
+// print partition given vals and their multiplicities
 void print_partition(const std::vector<int>& p, const std::vector<int>& m, int idx){
   // prints partition using unicode superscripts
   for (auto&& [val, mult] : std::views::zip(p, m) | std::views::take(idx + 1)){
@@ -23,6 +24,29 @@ void print_partition(const std::vector<int>& p, const std::vector<int>& m, int i
       exp += super_scripts[c - '0'];
     }
     std::cout << val << exp << ' ';
+  }
+  std::cout << '\n';
+}
+
+// print partition given partition with repeated vals
+void print_partition(const std::vector<int>& lambda){
+  int curr_count{1};
+  int curr_val = lambda[0];
+  for (int idx{1}; idx < lambda.size(); ){
+    while (idx < lambda.size() && lambda[idx] == curr_val){
+      ++curr_count;
+      ++idx;
+    }
+
+    std::string cnt_s{std::to_string(curr_count)};
+    std::string exp{""};
+    for (const char& c : cnt_s){
+      exp += super_scripts[c - '0'];
+    }
+    std::cout << curr_val << exp << ' ';
+
+    if (idx < lambda.size()) curr_val = lambda[idx];
+    curr_count = 0;
   }
   std::cout << '\n';
 }
@@ -142,6 +166,51 @@ size_t Rank(std::vector<int> lambda, int n){
   return p(n, n+1, pcache)  - S(lambda, 0, n, pcache);
 }
 
+// unrank a rank to get the partition for n
+std::vector<int> unrank(size_t rank, int n){
+  std::vector<std::vector<int>> pcache(n+1, std::vector<int>(n+2, -1)); 
+  std::vector<int> lambda;
+  int S = p(n, n+1, pcache) - rank;
+  while (n > 0){
+    if (S == 0){
+      lambda.push_back(1);
+      --n;
+    } else {
+      int lam = 2;
+      int k;
+      while (p(n, lam, pcache) <= S){
+        lam++;
+      }
+      lambda.push_back(--lam);
+      S -= p(n, lam, pcache);
+      n -= lam;
+    }
+  }
+  return lambda;
+}
+
+// overload of unrank with a cache passed to it
+std::vector<int> unrank(size_t rank, int n, std::vector<std::vector<int>> pcache){
+  std::vector<int> lambda;
+  int S = p(n, n+1, pcache) - rank;
+  while (n > 0){
+    if (S == 0){
+      lambda.push_back(1);
+      --n;
+    } else {
+      int lam = 2;
+      int k;
+      while (p(n, lam, pcache) <= S){
+        lam++;
+      }
+      lambda.push_back(--lam);
+      S -= p(n, lam, pcache);
+      n -= lam;
+    }
+  }
+  return lambda;
+}
+
 void interactive_rev_lex_list(){
   int n;
   std::cout << "Enter n: ";
@@ -184,7 +253,7 @@ void interactive_brute_lex_rank(){
   for (int i{}; i < p_exp.size(); ++i){
     n += (p_exp[i] * m_exp[i]);
   }
-  unrank_rev_lex_brute(n, p_exp, m_exp);
+  rank_rev_lex_brute(n, p_exp, m_exp);
 }
 
 void interactive_lex_rank(){
@@ -205,9 +274,31 @@ void interactive_lex_rank(){
   std::cout << "Rank: " <<  Rank(lambda, n) << '\n';
 }
 
+void interactive_lex_unrank(){
+  int n;
+  int rank;
+
+  std::cout << "Enter n: ";
+  std::cin >> n;
+  std::cin.ignore();
+
+  std::cout << "Enter rank: ";
+  std::cin >> rank;
+  std::cin.ignore();
+
+  std::vector<std::vector<int>> pcache(n+1, std::vector<int>(n+2, -1)); 
+  if (rank < 0 || rank > p(n, n+1, pcache)){
+    std::cerr << "Invalid rank\n";
+    exit(1);
+  }
+
+  auto lambda = unrank(rank, n, pcache);
+  print_partition(lambda);
+}
 
 int main(){
-  interactive_rev_lex_list();
-  interactive_brute_lex_rank();
-  interactive_lex_rank();
+  // interactive_rev_lex_list();
+  // interactive_brute_lex_rank();
+  // interactive_lex_rank();
+  interactive_lex_unrank();
 }
