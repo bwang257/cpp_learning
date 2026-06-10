@@ -7,9 +7,6 @@ to reduce unnecessary copies
 #include <iostream>
 #include <memory>
 
-using std::cout;
-using std::endl;
-
 
 struct House {
   int size{10};
@@ -18,16 +15,21 @@ struct House {
 class Person {
   public:
     Person() : home {std::make_unique<House>()} {};
-    ~Person() { home.release(); };
+    ~Person() {
+      home.release();
+      std::cout << "Calling destructor!\n";
+    };
 
     std::unique_ptr<House> home;
 
     // Default Copy Constructor provided by the C++ compiler looks like
     // Person (const Person& source) {
-    //  home = source.home; <== scopies the address only, does not create a new House struct
+    //  home = source.home; <== copies the address only, does not create a new House struct
     // }
     // pass reference to the home too for deep copying (so that default isn't used)
-    Person( const Person& source) : home{std::make_unique<House>(*source.home)}{};
+    Person(const Person& source) : home{std::make_unique<House>(*source.home)}{
+      std::cout << "(Person) Copy constructor called!\n";
+    };
 
     // Default copy assignment operator implements shallow copying. 
     // Returns a reference to itself using *this
@@ -36,7 +38,7 @@ class Person {
 
       // edge case where source = this
       if (this == &source){
-        cout << "Copy assignment operator called on self!" << endl;
+        std::cout << "(Person) Copy assignment operator called on self!\n";
         return *this;
       }
 
@@ -53,7 +55,7 @@ class Person {
 struct myStruct {
   myStruct() = default;
   myStruct(const myStruct& source){
-    cout << "Copying struct" << endl;
+    std::cout << "Calling myStruct copy constructor\n";
   }
 };
 
@@ -65,8 +67,10 @@ myStruct get_struct(){
 };
 
 myStruct return_copy_struct(myStruct ms){
-  // copies the struct 3 times
-  return ms;
+  // should technically copy when passed into function, copied in copy, and copied again when returned
+  // note RVO compiler optimization
+  myStruct copy{ms};
+  return copy;
 }
 
 int main(){
@@ -84,21 +88,21 @@ int main(){
   // Shallow Copying --> only the pointer is copied if the default constructor is called
   // Deleting Person A's home will also destroy Person B's home
   // This leads to a double-free error (assuming raw pointers are used)
-  cout << "Person A's home address: " << A.home << endl;
-  cout << "Person A's home size: " << A.home->size << endl;
-  cout << "Person B's home address: " << B.home << endl;
-  cout << "Person B's home size: " << B.home->size << endl;
-  cout << "Person C's home address: " << C.home << endl;
-  cout << "Person C's home size: " << C.home->size << endl;
+  std::cout << "Person A's home address: " << A.home << '\n';
+  std::cout << "Person A's home size: " << A.home->size << '\n';
+  std::cout << "Person B's home address: " << B.home << '\n';
+  std::cout << "Person B's home size: " << B.home->size << '\n';
+  std::cout << "Person C's home address: " << C.home << '\n';
+  std::cout << "Person C's home size: " << C.home->size << '\n';
 
   // Compilers are able to eliminate unncessary copying
   // this is known as return value optimization or RVO
-  cout << "\nCalling get_struct" << endl;
+  std::cout << "\nCalling get_struct" << '\n';
   myStruct D = get_struct();
-  cout << "Get struct done" << endl;
+  std::cout << "Get struct done" << '\n';
 
   // calling return_copy_struct() requires 3 different copies of our object
   // in memory, waste of resources
-  cout << "\nCalling get_struct" << endl;
+  std::cout << "\nCalling return_copy_struct" << '\n';
   D = return_copy_struct(D);
 }
