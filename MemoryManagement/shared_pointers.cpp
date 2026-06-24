@@ -1,28 +1,26 @@
 /* 
 Introduction to shared pointers
+
+g++ shared_pointers.cpp -o run
 */
 
 #include <iostream>
 #include <memory>
 #include <string>
 
-using std::string;
-using std::cout;
-using std::endl;
-
 
 class Person {
 public:
-    string name;
-    Person(string name = "unnamed") : name{name}{
-        cout << "Creating " << name << endl;
+    std::string name;
+    Person(std::string name = "unnamed") : name{name}{
+        std::cout << "Creating " << name << '\n';
     }
     ~Person(){
-        cout << "Deleting " << name << endl;
+        std::cout << "Deleting " << name << '\n';
 }};
 
 int main(){
-    out << "=== Smart Pointers ===\n";
+    std::cout << "=== Smart Pointers ===\n";
     auto BrianPointer{std::make_shared<Person>("Brian")};
     
     // doing auto BrianPointer2 {std::make_shared<Person>("Brian")};
@@ -32,17 +30,19 @@ int main(){
     auto BrianPointer2{BrianPointer};
     
     // use_count() to get number of owners
-    out << "# of owners: " << BrianPointer.use_count() << endl;
+    std::cout << "# of owners: " << BrianPointer.use_count() << '\n';
 
-    // get raw pointer using .get()
     // reset ownership using .reset()
     // transfer ownership using std::move()
     // can also call .swap()
 
+    std::cout << "Raw ptr: " << BrianPointer.get() << '\n'; // get raw ptr
+
     // underlying resource only deleted if the resource has no owners
 
     // use std::dynamic_pointer_cast and std::static_pointer_cast, which return std::shared_ptr instances
-    // if the case fails, an empty share pointer is returned, evaluates as a boolean
+    // if the case fails, an empty shared pointer is returned, evaluates as a boolean
+    // ex. if you cast ptr to parent class to ptr to child class
 
 
     /**
