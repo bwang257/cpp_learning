@@ -19,6 +19,24 @@ class vector {
         iterator() : ptr(nullptr){}
         explicit iterator(T* p) : ptr{p}{}
 
+        // TODO: return by value?
+        iterator& operator+(size_t shift){
+          std::cout << shift << '\n';
+          std::cout << ptr << '\n';
+          ptr += shift;
+          std::cout << ptr << '\n';
+        
+          return *this;
+        }
+
+        bool operator<(const iterator& other) const noexcept{
+          return this->ptr < other.ptr;
+        }
+
+        bool operator>(const iterator& other) const noexcept{
+          return this->ptr > other.ptr;
+        }
+
         bool operator==(const iterator& other) const noexcept{
           return this->ptr == other.ptr;
         }
@@ -39,14 +57,20 @@ class vector {
           ptr += 1;
           return temp;
         }
-      private:
+
+        iterator& operator+=(size_t rhs){
+          this->ptr += rhs;
+          return *this;
+        }
+
+        // should this be private?
         T* ptr{nullptr}; 
     };
     static_assert(sizeof(iterator) == 8, "Size incorrect with iterator");
 
 
     T& operator[](size_t idx){
-      return *(_first + idx);
+      return *(_first.ptr + idx);
     }
 
     T& at(size_t idx){
@@ -63,17 +87,55 @@ class vector {
     }
 
     void push_back(const T& val){
+
+      std::cout << "Push_Back called!\n\n\n\n";
+
       if (_last == _end){
+
+        std::cout << "First: " <<  _first.ptr << '\n';
+
         // reallocate memory
-        size_t new_size = 1 << this->size();
+
+        size_t prev_size = this->size();
+
+
+        size_t new_size = this->size() == 0 ? 1 : 2 * this->size(); // TODO: store as local var or keep
+        std::cout << "New capacity: " << new_size << '\n';
+        iterator old_start{_first.ptr};
         iterator new_start{new T[new_size]};
-        if (_first->ptr) delete[] _first->ptr; 
-        // TODO
+        iterator cpy = new_start;
+
+
+        while (_first < _end){
+          *(cpy.ptr) = *(_first.ptr); // TODO: determine if this should be allowed
+          cpy += 1;
+          _first += 1;
+        }
+        *(cpy.ptr) = val;
+        _last = cpy + 1;
+        
+        _end.ptr = new_start.ptr + new_size; // can't seem to _end = new_start + new_size
+        std::cout << "_end assigned to: " << _last.ptr << '\n';
+
+        if (old_start.ptr){
+          std::cout << "UH OH" << '\n';
+          std::cout << _first.ptr << '\n';
+          std::cout << old_start.ptr << '\n';
+          if (prev_size >  1) delete old_start.ptr;
+          else delete[] old_start.ptr; 
+          std::cout << "We broke through\n";
+        }
+
+        _first = new_start;
+      } else {
+        *(_last.ptr) = val;
+        _last.ptr += 1;
       }
     }
 
 
     void push_back(T&& val){
+      std::cout << "L value push_back was called\n";
       if (_last == _end){
 
       }
