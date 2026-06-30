@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstddef>
+#include <stdexcept>
+
 /*
 Notes:
 - if (ptr1 - ptr2) discouaraged over == for readability, == has zero overhead, no division risk
@@ -43,7 +45,35 @@ class vector {
     static_assert(sizeof(iterator) == 8, "Size incorrect with iterator");
 
 
-    void push_back(T){
+    T& operator[](size_t idx){
+      return *(_first + idx);
+    }
+
+    T& at(size_t idx){
+      // size_t type automatically checks for non-negative?
+      if (idx >= this->size()){
+        throw std::out_of_range("Index out of bounds"); // possible to write without std::to_string? 
+      }
+      return *(_first + idx);
+    }
+
+
+    void emplace_back(T&){
+
+    }
+
+    void push_back(const T& val){
+      if (_last == _end){
+        // reallocate memory
+        size_t new_size = 1 << this->size();
+        iterator new_start{new T[new_size]};
+        if (_first->ptr) delete[] _first->ptr; 
+        // TODO
+      }
+    }
+
+
+    void push_back(T&& val){
       if (_last == _end){
 
       }
