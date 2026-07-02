@@ -27,12 +27,13 @@ int main(){
   // std::cout << "WOW: " << *it2 << '\n';
 
 
-  // vector<int> mine;
-  // std::cout << sizeof(mine) << '\n';
-  // std::cout << mine.size() << '\n';
-  // auto it = mine.cbegin();
-  // std::cout << typeid(it).name() << '\n';
-  // it++;
-
+  vector<int> mine;
+  std::cout << sizeof(mine) << '\n';
+  int add = 1;
+  mine.push_back(add);
+  mine.push_back(add);
+  std::cout << "Initial capacity: " << mine.capacity() << '\n';
+  mine.reserve(1000);
+  std::cout << "New capacity: " << mine.capacity() << '\n';
 
 }

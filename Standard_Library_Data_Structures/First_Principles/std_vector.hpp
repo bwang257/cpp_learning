@@ -7,26 +7,20 @@
 Notes:
 - if (ptr1 - ptr2) discouaraged over == for readability, == has zero overhead, no division risk
 - adding to raw ptrs adds the size of the object it points to automatically
+- we assume the invariant that _first <= _last <= _end is valid
 */
 
 template <class T, class allocator = std::allocator<T>>
 class vector { 
   public:
     class iterator {
-
       public:
         // explicit needed so no unintended "Iterator ptr = raw_ptr/nullptr"
         iterator() : ptr(nullptr){}
         explicit iterator(T* p) : ptr{p}{}
 
-        // TODO: return by value?
-        iterator& operator+(size_t shift){
-          std::cout << shift << '\n';
-          std::cout << ptr << '\n';
-          ptr += shift;
-          std::cout << ptr << '\n';
-        
-          return *this;
+        iterator operator+(size_t shift) const noexcept{
+          return iterator{ptr + shift};
         }
 
         bool operator<(const iterator& other) const noexcept{
@@ -63,8 +57,11 @@ class vector {
           return *this;
         }
 
-        // should this be private?
+      private:
+        // ideally should be private
         T* ptr{nullptr}; 
+
+        friend class vector;
     };
     static_assert(sizeof(iterator) == 8, "Size incorrect with iterator");
 
@@ -76,66 +73,60 @@ class vector {
     T& at(size_t idx){
       // size_t type automatically checks for non-negative?
       if (idx >= this->size()){
-        throw std::out_of_range("Index out of bounds"); // possible to write without std::to_string? 
+        throw std::out_of_range("Index out of bounds"); // TODO: possible to write without std::to_string? 
       }
       return *(_first + idx);
     }
 
 
-    void emplace_back(T&){
+    void reallocate_mem(size_t new_size){
+      // helpful for both push_back/emplace_back
+      // and reserve
+      iterator old_start{_first.ptr};
+      iterator new_start{new T[new_size]};
+      iterator cpy = new_start;
 
+      while (_first < _last){
+        *(cpy.ptr) = *(_first.ptr);
+        cpy += 1;
+        _first += 1;
+      }
+
+      _first = new_start;
+      _last = cpy;
+      _end = new_start + new_size;
+
+        // deallocate past memory: must be called with [] bc allocated with new T[sz]
+      if (old_start.ptr) delete[] old_start.ptr;
+    }
+    
+    void reserve(size_t sz){
+      // simple does nothing if sz less than current size
+      if (sz > this->size()) reallocate_mem(sz);
     }
 
+    // void emplace_back(T&& val){
+    //   if (_last == _end){
+    //     size_t new_size = this->size() == 0 ? 1 : 2 * this->size();
+    //     reallocate_mem(new_size);
+    //   }
+    // }
+    
     void push_back(const T& val){
-
-      std::cout << "Push_Back called!\n\n\n\n";
-
+      // l value
+      // reallocate memory if necessary
       if (_last == _end){
-
-        std::cout << "First: " <<  _first.ptr << '\n';
-
-        // reallocate memory
-
-        size_t prev_size = this->size();
-
-
-        size_t new_size = this->size() == 0 ? 1 : 2 * this->size(); // TODO: store as local var or keep
-        std::cout << "New capacity: " << new_size << '\n';
-        iterator old_start{_first.ptr};
-        iterator new_start{new T[new_size]};
-        iterator cpy = new_start;
-
-
-        while (_first < _end){
-          *(cpy.ptr) = *(_first.ptr); // TODO: determine if this should be allowed
-          cpy += 1;
-          _first += 1;
-        }
-        *(cpy.ptr) = val;
-        _last = cpy + 1;
-        
-        _end.ptr = new_start.ptr + new_size; // can't seem to _end = new_start + new_size
-        std::cout << "_end assigned to: " << _last.ptr << '\n';
-
-        if (old_start.ptr){
-          std::cout << "UH OH" << '\n';
-          std::cout << _first.ptr << '\n';
-          std::cout << old_start.ptr << '\n';
-          if (prev_size >  1) delete old_start.ptr;
-          else delete[] old_start.ptr; 
-          std::cout << "We broke through\n";
-        }
-
-        _first = new_start;
-      } else {
-        *(_last.ptr) = val;
-        _last.ptr += 1;
+        size_t new_size = this->size() == 0 ? 1 : 2 * this->size();
+        reallocate_mem(new_size);
       }
+
+      *(_last.ptr) = val;
+      _last += 1;
     }
 
 
     void push_back(T&& val){
-      std::cout << "L value push_back was called\n";
+      std::cout << "R value push_back was called\n";
       if (_last == _end){
 
       }
@@ -143,11 +134,11 @@ class vector {
     }
 
     size_t size(){
-      return _last - _first;
+      return static_cast<size_t>(_last - _first);
     }
 
     size_t capacity(){
-
+      return static_cast<size_t>(_end - _first);
     }
 
     bool empty(){
