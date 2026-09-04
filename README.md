@@ -3,7 +3,8 @@
 
 Contains collections of either small experiments or small projects exploring C++ concepts/libraries or implentation of math topics in C++. 
 
-In progress: Effective Modern C++ by Scott Meyers
+In progress: Effective Modern C++ by Scott Meyers, C++ Concurrency in Action by Anthony Williams
+
 
 Completed: [Studyplan.dev Professional C++ Course](https://www.studyplan.dev/pro-cpp)
 
